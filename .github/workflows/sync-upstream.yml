@@ -1,0 +1,80 @@
+name: Sync Upstream
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      upstream_branch:
+        description: "上游分支"
+        required: false
+        default: "dev"
+      target_branch:
+        description: "目标分支"
+        required: false
+        default: "dev"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Resolve branches
+        id: branches
+        run: |
+          UPSTREAM_BRANCH="${{ github.event.inputs.upstream_branch || 'dev' }}"
+          TARGET_BRANCH="${{ github.event.inputs.target_branch || 'dev' }}"
+          echo "upstream_branch=$UPSTREAM_BRANCH" >> "$GITHUB_OUTPUT"
+          echo "target_branch=$TARGET_BRANCH" >> "$GITHUB_OUTPUT"
+
+      - name: Add upstream remote
+        run: |
+          if git remote get-url upstream > /dev/null 2>&1; then
+            git remote set-url upstream https://github.com/imsyy/SPlayer.git
+          else
+            git remote add upstream https://github.com/imsyy/SPlayer.git
+          fi
+
+      - name: Fetch all remotes
+        run: |
+          git fetch origin --prune
+          git fetch upstream --prune
+
+      - name: Checkout target branch
+        run: |
+          git checkout "${{ steps.branches.outputs.target_branch }}"
+          git pull --ff-only origin "${{ steps.branches.outputs.target_branch }}"
+
+      - name: Merge upstream without auto commit
+        run: |
+          set -e
+          if ! git merge --no-ff --no-commit "upstream/${{ steps.branches.outputs.upstream_branch }}"; then
+            echo "检测到冲突，停止合并。"
+            git merge --abort || true
+            exit 1
+          fi
+
+      - name: Commit and push when changed
+        run: |
+          if git diff --cached --quiet; then
+            echo "没有需要同步的更新。"
+            exit 0
+          fi
+          git commit -m "chore: sync upstream ${{ steps.branches.outputs.upstream_branch }}"
+          git push origin "HEAD:${{ steps.branches.outputs.target_branch }}"
