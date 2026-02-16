@@ -6,7 +6,6 @@ import { useDataStore, useSettingStore, useShortcutStore, useStatusStore } from 
 import { TASKBAR_IPC_CHANNELS } from "@/types/shared";
 import { isElectron, isMac } from "@/utils/env";
 import { printVersion } from "@/utils/log";
-import { openUserAgreement } from "@/utils/modal";
 import { useEventListener } from "@vueuse/core";
 import { debounce } from "lodash-es";
 import { onMounted, watch } from "vue";
@@ -32,8 +31,6 @@ export const useInit = () => {
     settingStore.checkAndMigrate();
     // 打印版本信息
     printVersion();
-    // 用户协议
-    openUserAgreement();
     // 加载数据
     await dataStore.loadData();
     // 初始化 MediaSession
