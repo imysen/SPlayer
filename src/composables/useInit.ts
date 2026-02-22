@@ -109,6 +109,7 @@ export const useInit = () => {
       watch(
         () => [
           settingStore.taskbarLyricShowCover,
+          settingStore.themeMode,
           settingStore.LyricFont,
           settingStore.globalFont,
           settingStore.taskbarLyricFontWeight,
@@ -116,19 +117,22 @@ export const useInit = () => {
           settingStore.taskbarLyricSingleLineMode,
           settingStore.showTran,
           settingStore.showRoma,
+          settingStore.taskbarLyricShowWordLyrics,
           settingStore.taskbarLyricShowWhenPaused,
         ],
         () => {
           updateTaskbarConfig({
             showCover: settingStore.taskbarLyricShowCover,
+            themeMode: settingStore.themeMode,
             fontFamily: settingStore.LyricFont,
             globalFont: settingStore.globalFont,
             fontWeight: settingStore.taskbarLyricFontWeight,
             animationMode: settingStore.taskbarLyricAnimationMode,
             singleLineMode: settingStore.taskbarLyricSingleLineMode,
+            showWhenPaused: settingStore.taskbarLyricShowWhenPaused,
             showTranslation: settingStore.showTran,
             showRomaji: settingStore.showRoma,
-            showWhenPaused: settingStore.taskbarLyricShowWhenPaused,
+            showWordLyrics: settingStore.taskbarLyricShowWordLyrics,
           });
         },
       );
