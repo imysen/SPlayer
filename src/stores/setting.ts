@@ -178,6 +178,8 @@ export interface SettingState {
   timeFormat: TimeFormat;
   /** 播放器类型 */
   playerType: "cover" | "record" | "fullscreen";
+  /** 评论显示模式 */
+  commentDisplayMode: "fullscreen" | "left" | "right";
   /** 背景类型 */
   playerBackgroundType: "none" | "animation" | "blur" | "color";
   /** 背景动画帧率 */
@@ -528,6 +530,7 @@ export const useSettingStore = defineStore("setting", {
     barLyricShow: true,
     timeFormat: "current-total",
     playerType: "cover",
+    commentDisplayMode: "fullscreen",
     playerBackgroundType: "blur",
     playerBackgroundFps: 30,
     playerBackgroundFlowSpeed: 4,
